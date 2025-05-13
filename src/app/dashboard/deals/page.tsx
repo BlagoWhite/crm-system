@@ -287,18 +287,18 @@ export default function DealsPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center p-8 dark:text-white">Loading deals data...</div>;
+    return <div className="text-center p-8 dark:text-white">Загрузка данных...</div>;
   }
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold dark:text-white">Deals</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Сделки</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
         >
-          Add New Deal
+          Добавить сделку
         </button>
       </div>
 
@@ -311,7 +311,7 @@ export default function DealsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           {/* Open Deals Column */}
           <DealColumn 
-            title="Open"
+            title="Открытые"
             count={openDeals.length}
             status="OPEN"
             deals={openDeals}
@@ -324,7 +324,7 @@ export default function DealsPage() {
 
           {/* Pending Deals Column */}
           <DealColumn 
-            title="Pending"
+            title="В ожидании"
             count={pendingDeals.length}
             status="PENDING"
             deals={pendingDeals}
@@ -337,7 +337,7 @@ export default function DealsPage() {
 
           {/* Won Deals Column */}
           <DealColumn 
-            title="Won"
+            title="Выигранные"
             count={wonDeals.length}
             status="WON"
             deals={wonDeals}
@@ -350,7 +350,7 @@ export default function DealsPage() {
 
           {/* Lost Deals Column */}
           <DealColumn 
-            title="Lost"
+            title="Проигранные"
             count={lostDeals.length}
             status="LOST"
             deals={lostDeals}
@@ -382,11 +382,11 @@ export default function DealsPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Deal</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Добавить сделку</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Title
+                  Название
                 </label>
                 <input
                   type="text"
@@ -395,12 +395,12 @@ export default function DealsPage() {
                     setNewDeal({ ...newDeal, title: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Deal title"
+                  placeholder="Название сделки"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Customer
+                  Клиент
                 </label>
                 <input
                   type="text"
@@ -409,12 +409,12 @@ export default function DealsPage() {
                     setNewDeal({ ...newDeal, customerName: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Customer name"
+                  placeholder="Имя клиента"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Value
+                  Стоимость
                 </label>
                 <input
                   type="number"
@@ -423,25 +423,25 @@ export default function DealsPage() {
                     setNewDeal({ ...newDeal, value: Number(e.target.value) })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Deal value"
+                  placeholder="Стоимость сделки"
                   min="0"
                   step="100"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Expected Closing Date
+                  Ожидаемая дата закрытия
                 </label>
                 <DatePicker
                   selected={newDeal.closingDate}
                   onChange={(date) => setNewDeal({ ...newDeal, closingDate: date })}
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholderText="Select closing date"
+                  placeholderText="Выберите дату закрытия"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Status
+                  Статус
                 </label>
                 <select
                   value={newDeal.status}
@@ -453,10 +453,10 @@ export default function DealsPage() {
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="OPEN">Open</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="WON">Won</option>
-                  <option value="LOST">Lost</option>
+                  <option value="OPEN">Открыта</option>
+                  <option value="PENDING">В ожидании</option>
+                  <option value="WON">Выиграна</option>
+                  <option value="LOST">Проиграна</option>
                 </select>
               </div>
             </div>
@@ -465,13 +465,13 @@ export default function DealsPage() {
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Cancel
+                Отменить
               </button>
               <button
                 onClick={addDeal}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
-                Add Deal
+                Добавить сделку
               </button>
             </div>
           </div>
@@ -538,7 +538,7 @@ function DealColumn({
       >
         {deals.length === 0 ? (
           <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">
-            No {title.toLowerCase()} deals
+            Сделок нет
           </div>
         ) : (
           deals.map((deal) => (

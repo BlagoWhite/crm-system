@@ -228,18 +228,18 @@ export default function TasksPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center p-8 dark:text-white">Loading tasks...</div>;
+    return <div className="text-center p-8 dark:text-white">Загрузка задач...</div>;
   }
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold dark:text-white">Tasks</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Задачи</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
         >
-          Add New Task
+          Добавить задачу
         </button>
       </div>
 
@@ -247,7 +247,7 @@ export default function TasksPage() {
         <div className="divide-y divide-gray-200 dark:divide-gray-700 space-y-2">
           {tasks.length === 0 ? (
             <div className="p-4 text-center text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-md">
-              No tasks available. Create your first task!
+              Задач нет. Создайте свою первую задачу!
             </div>
           ) : (
             tasks.map((task) => (
@@ -343,11 +343,11 @@ export default function TasksPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Task</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Добавить задачу</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Title
+                  Название
                 </label>
                 <input
                   type="text"
@@ -356,12 +356,12 @@ export default function TasksPage() {
                     setNewTask({ ...newTask, title: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Task title"
+                  placeholder="Название задачи"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Description
+                  Описание
                 </label>
                 <textarea
                   value={newTask.description}
@@ -369,24 +369,24 @@ export default function TasksPage() {
                     setNewTask({ ...newTask, description: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Task description"
+                  placeholder="Описание задачи"
                   rows={3}
                 ></textarea>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Due Date
+                  Дата завершения
                 </label>
                 <DatePicker
                   selected={newTask.dueDate}
                   onChange={(date) => setNewTask({ ...newTask, dueDate: date })}
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholderText="Select due date"
+                  placeholderText="Выберите дату завершения"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Priority
+                  Приоритет
                 </label>
                 <select
                   value={newTask.priority}
@@ -398,9 +398,9 @@ export default function TasksPage() {
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
+                  <option value="high">Высокий</option>
+                  <option value="medium">Средний</option>
+                  <option value="low">Низкий</option>
                 </select>
               </div>
             </div>
@@ -409,13 +409,13 @@ export default function TasksPage() {
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Cancel
+                Отменить
               </button>
               <button
                 onClick={addTask}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
-                Add Task
+                Добавить задачу
               </button>
             </div>
           </div>
@@ -426,11 +426,11 @@ export default function TasksPage() {
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Edit Task</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Редактировать задачу</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Title
+                  Название
                 </label>
                 <input
                   type="text"
@@ -439,12 +439,12 @@ export default function TasksPage() {
                     setEditingTask({ ...editingTask, title: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Task title"
+                  placeholder="Название задачи"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Description
+                  Описание
                 </label>
                 <textarea
                   value={editingTask.description}
@@ -452,24 +452,24 @@ export default function TasksPage() {
                     setEditingTask({ ...editingTask, description: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Task description"
+                  placeholder="Описание задачи"
                   rows={3}
                 ></textarea>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Due Date
+                  Дата завершения
                 </label>
                 <DatePicker
                   selected={editingTask.dueDate}
                   onChange={(date) => setEditingTask({ ...editingTask, dueDate: date })}
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholderText="Select due date"
+                  placeholderText="Выберите дату завершения"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Priority
+                  Приоритет
                 </label>
                 <select
                   value={editingTask.priority}
@@ -481,14 +481,14 @@ export default function TasksPage() {
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
+                  <option value="high">Высокий</option>
+                  <option value="medium">Средний</option>
+                  <option value="low">Низкий</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Status
+                  Статус
                 </label>
                 <div className="flex items-center">
                   <input
@@ -500,7 +500,7 @@ export default function TasksPage() {
                     className="h-4 w-4 text-primary-600 rounded"
                   />
                   <span className="ml-2 text-gray-700 dark:text-gray-300">
-                    Completed
+                    Выполнено
                   </span>
                 </div>
               </div>
@@ -510,7 +510,7 @@ export default function TasksPage() {
                 onClick={() => setIsEditModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Cancel
+                Отменить
               </button>
               <button
                 onClick={editTask}

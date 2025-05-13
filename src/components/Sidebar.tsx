@@ -14,7 +14,7 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   {
-    name: "Dashboard",
+    name: "Главная",
     href: "/dashboard",
     icon: (props) => (
       <svg
@@ -35,7 +35,7 @@ const navigation: NavItem[] = [
     ),
   },
   {
-    name: "Customers",
+    name: "Клиенты",
     href: "/dashboard/customers",
     icon: (props) => (
       <svg
@@ -54,7 +54,7 @@ const navigation: NavItem[] = [
     ),
   },
   {
-    name: "Deals",
+    name: "Сделки",
     href: "/dashboard/deals",
     icon: (props) => (
       <svg
@@ -76,7 +76,7 @@ const navigation: NavItem[] = [
     ),
   },
   {
-    name: "Tasks",
+    name: "Задачи",
     href: "/dashboard/tasks",
     icon: (props) => (
       <svg
@@ -166,7 +166,7 @@ export function Sidebar() {
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          Logout
+          Выйти
         </button>
         <ThemeToggle />
       </div>

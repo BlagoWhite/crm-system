@@ -153,12 +153,12 @@ export default function CustomersPage() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold dark:text-white">Customers</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Клиенты</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
         >
-          Add New Customer
+          Добавить клиента
         </button>
       </div>
 
@@ -184,7 +184,7 @@ export default function CustomersPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search customers..."
+              placeholder="Поиск клиентов..."
               className="pl-10 p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             />
           </div>
@@ -195,7 +195,7 @@ export default function CustomersPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
             >
-              <option value="ALL">All Statuses</option>
+              <option value="ALL">Все статусы</option>
               <option value="LEAD">Lead</option>
               <option value="PROSPECT">Prospect</option>
               <option value="ACTIVE">Active</option>
@@ -212,37 +212,37 @@ export default function CustomersPage() {
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
-                  Name
+                  Имя
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
-                  Email
+                  Эл. почта
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
-                  Phone
+                  Телефон
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
-                  Company
+                  Компания
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
-                  Status
+                  Статус
                 </th>
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
-                  Actions
+                  Действия
                 </th>
               </tr>
             </thead>
@@ -250,7 +250,7 @@ export default function CustomersPage() {
               {filteredCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                    No customers found
+                    Не найдено клиентов
                   </td>
                 </tr>
               ) : (
@@ -284,13 +284,13 @@ export default function CustomersPage() {
                         onClick={() => openEditModal(customer)}
                         className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
                       >
-                        Edit
+                        Редактировать
                       </button>
                       <button
                         onClick={() => deleteCustomer(customer.id)}
                         className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                       >
-                        Delete
+                        Удалить
                       </button>
                     </td>
                   </tr>
@@ -305,11 +305,11 @@ export default function CustomersPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Customer</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Добавить клиента</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Name
+                  Имя
                 </label>
                 <input
                   type="text"
@@ -318,12 +318,12 @@ export default function CustomersPage() {
                     setNewCustomer({ ...newCustomer, name: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Customer name"
+                  placeholder="Имя клиента"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
+                  Эл. почта
                 </label>
                 <input
                   type="email"
@@ -332,12 +332,12 @@ export default function CustomersPage() {
                     setNewCustomer({ ...newCustomer, email: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Email address"
+                  placeholder="Эл. почта"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phone
+                  Телефон
                 </label>
                 <input
                   type="text"
@@ -346,12 +346,12 @@ export default function CustomersPage() {
                     setNewCustomer({ ...newCustomer, phone: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Phone number"
+                  placeholder="Телефон"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Company
+                  Компания
                 </label>
                 <input
                   type="text"
@@ -360,12 +360,12 @@ export default function CustomersPage() {
                     setNewCustomer({ ...newCustomer, company: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Company name"
+                  placeholder="Название компании"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Status
+                  Статус
                 </label>
                 <select
                   value={newCustomer.status}
@@ -377,10 +377,10 @@ export default function CustomersPage() {
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 >
-                  <option value="LEAD">Lead</option>
-                  <option value="PROSPECT">Prospect</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="INACTIVE">Inactive</option>
+                    <option value="LEAD">Lead</option>
+                    <option value="PROSPECT">Prospect</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
                 </select>
               </div>
             </div>
@@ -389,13 +389,13 @@ export default function CustomersPage() {
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Cancel
+                Отменить
               </button>
               <button
                 onClick={addCustomer}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
-                Add Customer
+                Добавить клиента
               </button>
             </div>
           </div>
@@ -410,7 +410,7 @@ export default function CustomersPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Name
+                  Имя
                 </label>
                 <input
                   type="text"
@@ -419,12 +419,12 @@ export default function CustomersPage() {
                     setEditingCustomer({ ...editingCustomer, name: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Customer name"
+                  placeholder="Имя клиента"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email
+                  Эл. почта
                 </label>
                 <input
                   type="email"
@@ -433,12 +433,12 @@ export default function CustomersPage() {
                     setEditingCustomer({ ...editingCustomer, email: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Email address"
+                  placeholder="Эл. почта"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phone
+                  Телефон
                 </label>
                 <input
                   type="text"
@@ -447,12 +447,12 @@ export default function CustomersPage() {
                     setEditingCustomer({ ...editingCustomer, phone: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Phone number"
+                  placeholder="Телефон"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Company
+                  Компания
                 </label>
                 <input
                   type="text"
@@ -461,12 +461,12 @@ export default function CustomersPage() {
                     setEditingCustomer({ ...editingCustomer, company: e.target.value })
                   }
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
-                  placeholder="Company name"
+                  placeholder="Название компании"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Status
+                  Статус
                 </label>
                 <select
                   value={editingCustomer.status}
@@ -493,13 +493,13 @@ export default function CustomersPage() {
                 }}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                Cancel
+                Отменить
               </button>
               <button
                 onClick={updateCustomer}
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
-                Update Customer
+                Обновить клиента
               </button>
             </div>
           </div>

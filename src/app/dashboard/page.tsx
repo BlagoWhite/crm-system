@@ -198,7 +198,7 @@ export default function DashboardPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center p-8 dark:text-white">Loading dashboard data...</div>;
+    return <div className="text-center p-8 dark:text-white">Загрузка данных...</div>;
   }
 
   return (
@@ -207,19 +207,19 @@ export default function DashboardPage() {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard 
-          title="Total Customers" 
+          title="Всего клиентов" 
           value={totalCustomers.toString()} 
           change={customers.length > 0 ? "+1" : "0"} 
           trend="up" 
         />
         <StatCard 
-          title="Active Deals" 
+          title="Активные сделки" 
           value={activeDeals.toString()} 
           change={activeDeals > 0 ? "+1" : "0"} 
           trend="up" 
         />
         <StatCard 
-          title="Closed Deals (Month)" 
+          title="Закрытые сделки (Месяц)" 
           value={closedDealsThisMonth.toString()} 
           change={closedDealsThisMonth > 0 ? "+1" : "0"} 
           trend="up" 
@@ -228,10 +228,10 @@ export default function DashboardPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">Recent Activity</h2>
+          <h2 className="text-lg font-semibold mb-4 dark:text-white">Последние действия</h2>
           <div className="space-y-4">
             {recentActivities.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No recent activity found</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">Не найдено последних действий</p>
             ) : (
               recentActivities.map((activity, index) => (
                 <ActivityItem 
@@ -246,10 +246,10 @@ export default function DashboardPage() {
         </div>
         
         <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">Upcoming Tasks</h2>
+          <h2 className="text-lg font-semibold mb-4 dark:text-white">Следующие задачи</h2>
           <div className="space-y-3">
             {upcomingTasks.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No upcoming tasks found</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">Не найдено следующих задач</p>
             ) : (
               upcomingTasks.map((task) => (
                 <TaskItem 

@@ -26,27 +26,27 @@ export default function DashboardPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 dark:text-white">Recent Activity</h2>
+          <h2 className="text-lg font-semibold mb-4 dark:text-white">Последние действия</h2>
           <div className="space-y-4">
             <ActivityItem 
-              title="New Customer Added" 
-              description="Acme Inc. was added as a new customer" 
-              time="2 hours ago" 
+              title="Новый клиент добавлен" 
+              description="Acme Inc. был добавлен как новый клиент" 
+              time="2 часа назад" 
             />
             <ActivityItem 
-              title="Deal Closed" 
-              description="$15,000 deal with XYZ Corp was marked as won" 
-              time="5 hours ago" 
+              title="Сделка закрыта" 
+              description="$15,000 сделка с XYZ Corp была отмечена как выигранная" 
+              time="5 часов назад" 
             />
             <ActivityItem 
-              title="Task Completed" 
+              title="Задача выполнена" 
               description="Follow-up call with potential client completed" 
-              time="Yesterday" 
+              time="Вчера" 
             />
             <ActivityItem 
-              title="New Note Added" 
-              description="Sales meeting notes updated for ABC Ltd." 
-              time="Yesterday" 
+              title="Новая заметка добавлена" 
+              description="Заметки о встрече с потенциальным клиентом обновлены для ABC Ltd." 
+              time="Вчера" 
             />
           </div>
         </div>

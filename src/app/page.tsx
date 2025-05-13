@@ -19,13 +19,13 @@ export default function Home() {
                 href="/auth/login"
                 className="text-base font-medium text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
               >
-                Sign in
+                Войти
               </Link>
               <Link
                 href="/auth/register"
                 className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700"
               >
-                Sign up
+                Зарегистрироваться
               </Link>
             </div>
           </div>
@@ -40,12 +40,12 @@ export default function Home() {
               <div className="lg:grid lg:grid-cols-12 lg:gap-8">
                 <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
                   <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
-                    <span className="block">Manage your</span>{' '}
-                    <span className="block text-primary-600 dark:text-primary-400">business relationships</span>
+                    <span className="block">Управляйте своими</span>{' '}
+                    <span className="block text-primary-600 dark:text-primary-400">деловыми отношениями</span>
                   </h1>
                   <p className="mt-3 text-base text-gray-500 dark:text-gray-400 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                    Streamline customer management, track deals, and boost productivity with our 
-                    intuitive CRM platform. Designed for businesses of all sizes.
+                    Упростите управление клиентами, отслеживайте сделки и повысьте продуктивность с нашей
+                    интуитивной платформой CRM. Разработано для компаний всех размеров.
                   </p>
                   <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                     <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
@@ -54,7 +54,7 @@ export default function Home() {
                           onClick={() => router.push('/auth/register')}
                           className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10"
                         >
-                          Get started
+                          Начать
                         </button>
                       </div>
                       <div className="mt-3 sm:mt-0 sm:ml-3">
@@ -62,7 +62,7 @@ export default function Home() {
                           onClick={() => router.push('/auth/login')}
                           className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 dark:bg-primary-800 dark:text-primary-100 dark:hover:bg-primary-700 md:py-4 md:text-lg md:px-10"
                         >
-                          Sign in
+                          Войти
                         </button>
                       </div>
                     </div>
@@ -103,12 +103,12 @@ export default function Home() {
         <div className="bg-gray-50 dark:bg-gray-800 py-16 sm:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h2 className="text-base font-semibold text-primary-600 dark:text-primary-400 tracking-wide uppercase">Features</h2>
+              <h2 className="text-base font-semibold text-primary-600 dark:text-primary-400 tracking-wide uppercase">Функции</h2>
               <p className="mt-1 text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-4xl">
-                Everything you need to succeed
+                Все, что вам нужно для успеха
               </p>
               <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500 dark:text-gray-400">
-                Our CRM system provides all the tools you need to manage your customer relationships effectively.
+                Наша система CRM предоставляет все необходимые инструменты для эффективного управления вашими клиентскими отношениями.
               </p>
             </div>
 
@@ -124,9 +124,9 @@ export default function Home() {
                           </svg>
                         </span>
                       </div>
-                      <h3 className="mt-8 text-lg font-medium text-gray-900 dark:text-white tracking-tight">Customer Management</h3>
+                      <h3 className="mt-8 text-lg font-medium text-gray-900 dark:text-white tracking-tight">Управление клиентами</h3>
                       <p className="mt-5 text-base text-gray-500 dark:text-gray-300">
-                        Store and manage all your customer data in one place. Track interactions and keep detailed records.
+                        Храните и управляйте всеми данными о ваших клиентах в одном месте. Отслеживайте взаимодействия и сохраняйте подробные записи.
                       </p>
                     </div>
                   </div>
@@ -142,9 +142,9 @@ export default function Home() {
                           </svg>
                         </span>
                       </div>
-                      <h3 className="mt-8 text-lg font-medium text-gray-900 dark:text-white tracking-tight">Deal Tracking</h3>
+                      <h3 className="mt-8 text-lg font-medium text-gray-900 dark:text-white tracking-tight">Отслеживание сделок</h3>
                       <p className="mt-5 text-base text-gray-500 dark:text-gray-300">
-                        Track potential deals from lead to close. Monitor progress and analyze your sales pipeline.
+                        Отслеживайте потенциальные сделки от лида до закрытия. Мониторьте прогресс и анализируйте свою продажи.
                       </p>
                     </div>
                   </div>
@@ -160,9 +160,9 @@ export default function Home() {
                           </svg>
                         </span>
                       </div>
-                      <h3 className="mt-8 text-lg font-medium text-gray-900 dark:text-white tracking-tight">Task Management</h3>
+                      <h3 className="mt-8 text-lg font-medium text-gray-900 dark:text-white tracking-tight">Управление задачами</h3>
                       <p className="mt-5 text-base text-gray-500 dark:text-gray-300">
-                        Never miss a follow-up with our task management system. Set reminders and prioritize activities.
+                        Никогда не пропускайте отслеживание с нашей системой управления задачами. Установите напоминания и приоритизируйте действия.
                       </p>
                     </div>
                   </div>
@@ -192,7 +192,7 @@ export default function Home() {
           </div>
           <div className="mt-8 md:mt-0 md:order-1">
             <p className="text-center text-base text-gray-400 dark:text-gray-500">
-              &copy; 2025 CRM System. All rights reserved.
+              &copy; 2025 CRM System. Все права защищены.
             </p>
           </div>
         </div>
