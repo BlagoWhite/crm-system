@@ -52,13 +52,13 @@ export default function TasksPage() {
   const getPriorityClass = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -75,7 +75,7 @@ export default function TasksPage() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Tasks</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Tasks</h1>
         <button
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
         >
@@ -83,18 +83,18 @@ export default function TasksPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="divide-y divide-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {tasks.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
               No tasks available. Create your first task!
             </div>
           ) : (
             tasks.map((task) => (
               <div
                 key={task.id}
-                className={`p-4 ${
-                  task.completed ? 'bg-gray-50' : 'bg-white'
+                className={`p-4 border border-gray-200 dark:border-gray-600 rounded-md ${
+                  task.completed ? 'bg-gray-100 dark:bg-gray-700' : 'bg-gray-50 dark:bg-gray-800'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -108,16 +108,16 @@ export default function TasksPage() {
                     <div>
                       <h3
                         className={`font-medium ${
-                          task.completed ? 'line-through text-gray-500' : ''
+                          task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'dark:text-white'
                         }`}
                       >
                         {task.title}
                       </h3>
-                      <p className="text-sm text-gray-600 mt-1">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                         {task.description}
                       </p>
                       <div className="flex space-x-2 mt-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatDate(task.dueDate)}
                         </span>
                         <span

@@ -12,6 +12,7 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<CustomerType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [newCustomer, setNewCustomer] = useState<Omit<CustomerType, 'id'>>({
@@ -22,6 +23,7 @@ export default function CustomersPage() {
     status: 'LEAD',
     userId: user?.id || '',
   });
+  const [editingCustomer, setEditingCustomer] = useState<CustomerType | null>(null);
 
   // Fetch customers from Firestore
   useEffect(() => {
@@ -87,6 +89,38 @@ export default function CustomersPage() {
     }
   };
 
+  // Edit customer
+  const openEditModal = (customer: CustomerType) => {
+    // Make sure we have a valid customer with an ID
+    if (!customer.id) return;
+    setEditingCustomer(customer);
+    setIsEditModalOpen(true);
+  };
+
+  const updateCustomer = async () => {
+    if (!editingCustomer || !user) return;
+    if (!editingCustomer.id) return; // Ensure we have a valid ID
+    
+    try {
+      // Create a copy of the customer data without the id field
+      const { id, ...customerData } = editingCustomer;
+      
+      // Update in Firestore
+      await updateDocument(COLLECTIONS.CUSTOMERS, id, customerData);
+      
+      // Update local state
+      setCustomers(
+        customers.map((c) => (c.id === id ? editingCustomer : c))
+      );
+      
+      // Close modal
+      setIsEditModalOpen(false);
+      setEditingCustomer(null);
+    } catch (error) {
+      console.error('Error updating customer:', error);
+    }
+  };
+
   // Delete customer
   const deleteCustomer = async (id: string) => {
     try {
@@ -104,22 +138,22 @@ export default function CustomersPage() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'LEAD':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       case 'PROSPECT':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
       case 'ACTIVE':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       case 'INACTIVE':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Customers</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Customers</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
@@ -128,7 +162,7 @@ export default function CustomersPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden mb-6">
         <div className="p-4 flex flex-col md:flex-row justify-between gap-4">
           <div className="relative flex-grow">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -151,7 +185,7 @@ export default function CustomersPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search customers..."
-              className="pl-10 p-2 border border-gray-300 rounded-md w-full"
+              className="pl-10 p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             />
           </div>
 
@@ -159,7 +193,7 @@ export default function CustomersPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="p-2 border border-gray-300 rounded-md"
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
             >
               <option value="ALL">All Statuses</option>
               <option value="LEAD">Lead</option>
@@ -171,70 +205,70 @@ export default function CustomersPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
                   Name
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
                   Email
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
                   Phone
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
                   Company
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
                   Status
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {filteredCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     No customers found
                   </td>
                 </tr>
               ) : (
                 filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50">
+                  <tr key={customer.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {customer.name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{customer.email}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{customer.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{customer.phone}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{customer.phone}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">{customer.company}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{customer.company}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -247,8 +281,14 @@ export default function CustomersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
+                        onClick={() => openEditModal(customer)}
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-4"
+                      >
+                        Edit
+                      </button>
+                      <button
                         onClick={() => deleteCustomer(customer.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                       >
                         Delete
                       </button>
@@ -264,11 +304,11 @@ export default function CustomersPage() {
       {/* Add Customer Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add New Customer</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Customer</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Name
                 </label>
                 <input
@@ -277,12 +317,12 @@ export default function CustomersPage() {
                   onChange={(e) =>
                     setNewCustomer({ ...newCustomer, name: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Customer name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email
                 </label>
                 <input
@@ -291,12 +331,12 @@ export default function CustomersPage() {
                   onChange={(e) =>
                     setNewCustomer({ ...newCustomer, email: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Email address"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Phone
                 </label>
                 <input
@@ -305,12 +345,12 @@ export default function CustomersPage() {
                   onChange={(e) =>
                     setNewCustomer({ ...newCustomer, phone: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Phone number"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Company
                 </label>
                 <input
@@ -319,12 +359,12 @@ export default function CustomersPage() {
                   onChange={(e) =>
                     setNewCustomer({ ...newCustomer, company: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Company name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Status
                 </label>
                 <select
@@ -335,7 +375,7 @@ export default function CustomersPage() {
                       status: e.target.value as 'LEAD' | 'PROSPECT' | 'ACTIVE' | 'INACTIVE',
                     })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 >
                   <option value="LEAD">Lead</option>
                   <option value="PROSPECT">Prospect</option>
@@ -347,7 +387,7 @@ export default function CustomersPage() {
             <div className="flex justify-end space-x-2 mt-6">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -356,6 +396,110 @@ export default function CustomersPage() {
                 className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
               >
                 Add Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Customer Modal */}
+      {isEditModalOpen && editingCustomer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Edit Customer</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={editingCustomer.name}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, name: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  placeholder="Customer name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={editingCustomer.email || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, email: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  placeholder="Email address"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Phone
+                </label>
+                <input
+                  type="text"
+                  value={editingCustomer.phone || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, phone: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  placeholder="Phone number"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Company
+                </label>
+                <input
+                  type="text"
+                  value={editingCustomer.company || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, company: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                  placeholder="Company name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Status
+                </label>
+                <select
+                  value={editingCustomer.status}
+                  onChange={(e) =>
+                    setEditingCustomer({
+                      ...editingCustomer,
+                      status: e.target.value as 'LEAD' | 'PROSPECT' | 'ACTIVE' | 'INACTIVE',
+                    })
+                  }
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="LEAD">Lead</option>
+                  <option value="PROSPECT">Prospect</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2 mt-6">
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingCustomer(null);
+                }}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={updateCustomer}
+                className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+              >
+                Update Customer
               </button>
             </div>
           </div>

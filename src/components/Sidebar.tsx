@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { signOut } from "@/lib/auth";
+import ThemeToggle from "./ThemeToggle";
 
 interface NavItem {
   name: string;
@@ -116,7 +117,7 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-64 bg-gray-800 text-white">
+    <div className="flex flex-col h-screen w-64 bg-gray-800 dark:bg-gray-900 text-white">
       <div className="p-5 border-b border-gray-700">
         <h1 className="text-lg font-bold">CRM System</h1>
       </div>
@@ -130,8 +131,8 @@ export function Sidebar() {
                 href={item.href}
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                    ? "bg-gray-900 dark:bg-gray-800 text-white"
+                    : "text-gray-300 hover:bg-gray-700 dark:hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 <item.icon
@@ -146,10 +147,10 @@ export function Sidebar() {
           })}
         </div>
       </nav>
-      <div className="p-4 border-t border-gray-700">
+      <div className="p-4 border-t border-gray-700 flex items-center justify-between">
         <button 
           onClick={handleLogout}
-          className="flex items-center w-full text-sm font-medium text-gray-300 hover:text-white"
+          className="flex items-center text-sm font-medium text-gray-300 hover:text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -167,6 +168,7 @@ export function Sidebar() {
           </svg>
           Logout
         </button>
+        <ThemeToggle />
       </div>
     </div>
   );

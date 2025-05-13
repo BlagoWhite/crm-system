@@ -51,6 +51,7 @@ export interface Task extends BaseModel {
   customerId?: string; // Optional reference to Customer
   dealId?: string; // Optional reference to Deal
   userId: string; // Reference to User who owns this task
+  priority?: 'high' | 'medium' | 'low'; // Task priority level
 }
 
 // Note model

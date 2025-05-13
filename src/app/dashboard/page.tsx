@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getDocuments } from '@/lib/firestore';
+import { getDocuments, updateDocument } from '@/lib/firestore';
 import { COLLECTIONS } from '@/lib/firestore';
 import { Customer, Deal, Task } from '@/types/firebase';
 import { Timestamp } from 'firebase/firestore';
@@ -68,18 +68,20 @@ export default function DashboardPage() {
   }).length;
 
   // Get upcoming tasks (not completed, sorted by due date)
-  const upcomingTasks = [...tasks]
-    .filter(task => !task.completed)
-    .sort((a, b) => {
-      if (!a.dueDate) return 1;
-      if (!b.dueDate) return -1;
-      
-      const dateA = a.dueDate instanceof Timestamp ? a.dueDate.toDate() : new Date(a.dueDate);
-      const dateB = b.dueDate instanceof Timestamp ? b.dueDate.toDate() : new Date(b.dueDate);
-      
-      return dateA.getTime() - dateB.getTime();
-    })
-    .slice(0, 4); // Get only the first 4
+  const upcomingTasks = useMemo(() => {
+    return [...tasks]
+      .filter(task => !task.completed)
+      .sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        
+        const dateA = a.dueDate instanceof Timestamp ? a.dueDate.toDate() : new Date(a.dueDate);
+        const dateB = b.dueDate instanceof Timestamp ? b.dueDate.toDate() : new Date(b.dueDate);
+        
+        return dateA.getTime() - dateB.getTime();
+      })
+      .slice(0, 4); // Get only the first 4
+  }, [tasks]);
 
   // Format relative time (e.g., "2 hours ago")
   const getRelativeTime = (timestamp?: Timestamp | Date) => {
@@ -174,13 +176,34 @@ export default function DashboardPage() {
     });
   };
 
+  // Toggle task completion
+  const toggleTaskCompletion = async (id: string) => {
+    try {
+      // Find the task to toggle
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+      
+      // Update in Firestore
+      await updateDocument(COLLECTIONS.TASKS, id, { completed: !task.completed });
+      
+      // Update local state
+      setTasks(
+        tasks.map(task => 
+          task.id === id ? { ...task, completed: !task.completed } : task
+        )
+      );
+    } catch (error) {
+      console.error('Error updating task completion:', error);
+    }
+  };
+
   if (isLoading) {
-    return <div className="text-center p-8">Loading dashboard data...</div>;
+    return <div className="text-center p-8 dark:text-white">Loading dashboard data...</div>;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6 dark:text-white">Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard 
@@ -204,11 +227,11 @@ export default function DashboardPage() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+        <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4 dark:text-white">Recent Activity</h2>
           <div className="space-y-4">
             {recentActivities.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No recent activity found</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No recent activity found</p>
             ) : (
               recentActivities.map((activity, index) => (
                 <ActivityItem 
@@ -222,18 +245,21 @@ export default function DashboardPage() {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Upcoming Tasks</h2>
+        <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4 dark:text-white">Upcoming Tasks</h2>
           <div className="space-y-3">
             {upcomingTasks.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No upcoming tasks found</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No upcoming tasks found</p>
             ) : (
               upcomingTasks.map((task) => (
                 <TaskItem 
                   key={task.id}
                   title={task.title} 
                   dueDate={formatDueDate(task.dueDate)} 
-                  priority="medium" 
+                  priority={task.priority || 'medium'} 
+                  id={task.id || ''} 
+                  completed={task.completed}
+                  onTaskComplete={toggleTaskCompletion}
                 />
               ))
             )}
@@ -256,9 +282,9 @@ function StatCard({
   trend: 'up' | 'down'; 
 }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-3xl font-bold mt-1">{value}</p>
+    <div className="bg-white dark:bg-gray-700 rounded-lg shadow p-6">
+      <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
+      <p className="text-3xl font-bold mt-1 dark:text-white">{value}</p>
       <div className="flex items-center mt-2">
         <span className={`text-sm ${trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
           {change}
@@ -288,9 +314,9 @@ function ActivityItem({
 }) {
   return (
     <div className="border-l-4 border-primary-500 pl-4 py-1">
-      <p className="font-medium">{title}</p>
-      <p className="text-sm text-gray-600">{description}</p>
-      <p className="text-xs text-gray-400 mt-1">{time}</p>
+      <p className="font-medium dark:text-white">{title}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-300">{description}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{time}</p>
     </div>
   );
 }
@@ -298,29 +324,40 @@ function ActivityItem({
 function TaskItem({ 
   title, 
   dueDate, 
-  priority 
+  priority,
+  id,
+  completed,
+  onTaskComplete
 }: { 
   title: string; 
   dueDate: string; 
-  priority: 'high' | 'medium' | 'low'; 
+  priority: 'high' | 'medium' | 'low';
+  id: string;
+  completed: boolean;
+  onTaskComplete: (id: string) => void;
 }) {
   const getPriorityColor = () => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
   
   return (
-    <div className="flex items-center justify-between p-3 border border-gray-200 rounded-md">
+    <div className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 dark:border-2 rounded-md dark:bg-gray-700">
       <div className="flex items-center">
-        <input type="checkbox" className="mr-3 h-4 w-4 text-primary-600 rounded" />
-        <span>{title}</span>
+        <input 
+          type="checkbox" 
+          className="mr-3 h-4 w-4 text-primary-600 rounded"
+          checked={completed}
+          onChange={() => onTaskComplete(id)}
+        />
+        <span className={`dark:text-white ${completed ? 'line-through text-gray-500 dark:text-gray-400' : ''}`}>{title}</span>
       </div>
       <div className="flex items-center">
-        <span className="text-sm text-gray-500 mr-2">{dueDate}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">{dueDate}</span>
         <span className={`text-xs px-2 py-1 rounded ${getPriorityColor()}`}>
           {priority}
         </span>

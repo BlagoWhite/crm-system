@@ -11,11 +11,38 @@ import { Timestamp } from 'firebase/firestore';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+// DND-kit imports (replacing react-beautiful-dnd)
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from '@dnd-kit/core';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+
 export default function DealsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [deals, setDeals] = useState<DealType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeDeal, setActiveDeal] = useState<DealType | null>(null);
+  
+  // Configure DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5, // 5px movement required before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   
   // Local state for form with Date objects (easier to work with in UI)
   interface FormDeal {
@@ -163,6 +190,65 @@ export default function DealsPage() {
     }
   };
 
+  // Handle drag start
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const draggedDeal = deals.find(deal => deal.id === active.id);
+    
+    if (draggedDeal) {
+      setActiveDeal(draggedDeal);
+    }
+  };
+
+  // Handle drag end
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    // Reset active deal
+    setActiveDeal(null);
+    
+    if (!over) {
+      console.log('Dropped outside droppable area');
+      return;
+    }
+    
+    const dealId = active.id as string;
+    const newStatus = over.id as 'OPEN' | 'PENDING' | 'WON' | 'LOST';
+    
+    console.log(`Moving deal ${dealId} to ${newStatus}`);
+    
+    // Find the deal being dragged
+    const deal = deals.find(d => d.id === dealId);
+    
+    if (!deal) {
+      console.error(`Could not find deal with ID ${dealId}`);
+      return;
+    }
+    
+    // If the status hasn't changed, do nothing
+    if (deal.status === newStatus) {
+      console.log('Status unchanged');
+      return;
+    }
+    
+    try {
+      // Update in Firestore
+      await updateDocument(COLLECTIONS.DEALS, dealId, { status: newStatus });
+      
+      // Update local state
+      setDeals(
+        deals.map((deal) =>
+          deal.id === dealId ? { ...deal, status: newStatus } : deal
+        )
+      );
+      
+      console.log(`Successfully updated deal ${dealId} to status ${newStatus}`);
+    } catch (error) {
+      console.error('Error updating deal status:', error);
+      alert('Failed to update deal status. Please try again.');
+    }
+  };
+
   // Format currency
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -200,10 +286,14 @@ export default function DealsPage() {
     }
   };
 
+  if (isLoading) {
+    return <div className="text-center p-8 dark:text-white">Loading deals data...</div>;
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Deals</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Deals</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md"
@@ -212,132 +302,90 @@ export default function DealsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <div className="flex items-center mb-4">
-            <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-            <h2 className="text-lg font-semibold">Open</h2>
-            <span className="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-              {openDeals.length}
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            {openDeals.length === 0 ? (
-              <div className="text-center p-4 bg-white rounded-lg border border-gray-200 text-gray-500">
-                No open deals
-              </div>
-            ) : (
-              openDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  onMove={moveDeal}
-                  onDelete={deleteDeal}
-                  formatCurrency={formatCurrency}
-                  formatDate={formatDate}
-                />
-              ))
-            )}
-          </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {/* Open Deals Column */}
+          <DealColumn 
+            title="Open"
+            count={openDeals.length}
+            status="OPEN"
+            deals={openDeals}
+            color="blue"
+            onMove={moveDeal}
+            onDelete={deleteDeal}
+            formatCurrency={formatCurrency}
+            formatDate={formatDate}
+          />
+
+          {/* Pending Deals Column */}
+          <DealColumn 
+            title="Pending"
+            count={pendingDeals.length}
+            status="PENDING"
+            deals={pendingDeals}
+            color="yellow"
+            onMove={moveDeal}
+            onDelete={deleteDeal}
+            formatCurrency={formatCurrency}
+            formatDate={formatDate}
+          />
+
+          {/* Won Deals Column */}
+          <DealColumn 
+            title="Won"
+            count={wonDeals.length}
+            status="WON"
+            deals={wonDeals}
+            color="green"
+            onMove={moveDeal}
+            onDelete={deleteDeal}
+            formatCurrency={formatCurrency}
+            formatDate={formatDate}
+          />
+
+          {/* Lost Deals Column */}
+          <DealColumn 
+            title="Lost"
+            count={lostDeals.length}
+            status="LOST"
+            deals={lostDeals}
+            color="red"
+            onMove={moveDeal}
+            onDelete={deleteDeal}
+            formatCurrency={formatCurrency}
+            formatDate={formatDate}
+          />
         </div>
 
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <div className="flex items-center mb-4">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-            <h2 className="text-lg font-semibold">Pending</h2>
-            <span className="ml-auto bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
-              {pendingDeals.length}
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            {pendingDeals.length === 0 ? (
-              <div className="text-center p-4 bg-white rounded-lg border border-gray-200 text-gray-500">
-                No pending deals
-              </div>
-            ) : (
-              pendingDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  onMove={moveDeal}
-                  onDelete={deleteDeal}
-                  formatCurrency={formatCurrency}
-                  formatDate={formatDate}
-                />
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <div className="flex items-center mb-4">
-            <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-            <h2 className="text-lg font-semibold">Won</h2>
-            <span className="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-              {wonDeals.length}
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            {wonDeals.length === 0 ? (
-              <div className="text-center p-4 bg-white rounded-lg border border-gray-200 text-gray-500">
-                No won deals
-              </div>
-            ) : (
-              wonDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  onMove={moveDeal}
-                  onDelete={deleteDeal}
-                  formatCurrency={formatCurrency}
-                  formatDate={formatDate}
-                />
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <div className="flex items-center mb-4">
-            <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-            <h2 className="text-lg font-semibold">Lost</h2>
-            <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-              {lostDeals.length}
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            {lostDeals.length === 0 ? (
-              <div className="text-center p-4 bg-white rounded-lg border border-gray-200 text-gray-500">
-                No lost deals
-              </div>
-            ) : (
-              lostDeals.map((deal) => (
-                <DealCard
-                  key={deal.id}
-                  deal={deal}
-                  onMove={moveDeal}
-                  onDelete={deleteDeal}
-                  formatCurrency={formatCurrency}
-                  formatDate={formatDate}
-                />
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+        {/* Drag Overlay */}
+        <DragOverlay>
+          {activeDeal ? (
+            <div className="opacity-80 w-full">
+              <DealCard
+                deal={activeDeal}
+                onMove={moveDeal}
+                onDelete={deleteDeal}
+                formatCurrency={formatCurrency}
+                formatDate={formatDate}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       {/* Add Deal Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add New Deal</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 dark:text-white">Add New Deal</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Title
                 </label>
                 <input
@@ -346,12 +394,12 @@ export default function DealsPage() {
                   onChange={(e) =>
                     setNewDeal({ ...newDeal, title: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Deal title"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Customer
                 </label>
                 <input
@@ -360,12 +408,12 @@ export default function DealsPage() {
                   onChange={(e) =>
                     setNewDeal({ ...newDeal, customerName: e.target.value })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Customer name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Value
                 </label>
                 <input
@@ -374,25 +422,25 @@ export default function DealsPage() {
                   onChange={(e) =>
                     setNewDeal({ ...newDeal, value: Number(e.target.value) })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholder="Deal value"
                   min="0"
                   step="100"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Expected Closing Date
                 </label>
                 <DatePicker
                   selected={newDeal.closingDate}
                   onChange={(date) => setNewDeal({ ...newDeal, closingDate: date })}
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                   placeholderText="Select closing date"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Status
                 </label>
                 <select
@@ -403,7 +451,7 @@ export default function DealsPage() {
                       status: e.target.value as 'OPEN' | 'PENDING' | 'WON' | 'LOST',
                     })
                   }
-                  className="w-full p-2 border border-gray-300 rounded-md"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 >
                   <option value="OPEN">Open</option>
                   <option value="PENDING">Pending</option>
@@ -415,7 +463,7 @@ export default function DealsPage() {
             <div className="flex justify-end space-x-2 mt-6">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -433,6 +481,121 @@ export default function DealsPage() {
   );
 }
 
+// Deal Column Component
+import { useDroppable } from '@dnd-kit/core';
+
+function DealColumn({
+  title,
+  count,
+  status,
+  deals,
+  color,
+  onMove,
+  onDelete,
+  formatCurrency,
+  formatDate,
+}: {
+  title: string;
+  count: number;
+  status: 'OPEN' | 'PENDING' | 'WON' | 'LOST';
+  deals: DealType[];
+  color: 'blue' | 'yellow' | 'green' | 'red';
+  onMove: (id: string, newStatus: 'OPEN' | 'PENDING' | 'WON' | 'LOST') => void;
+  onDelete: (id: string) => void;
+  formatCurrency: (value: number) => string;
+  formatDate: (date: any) => string;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  });
+  
+  const getBackgroundColor = () => {
+    if (isOver) {
+      switch (color) {
+        case 'blue': return 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-200 dark:ring-blue-800';
+        case 'yellow': return 'bg-yellow-50 dark:bg-yellow-900/20 ring-2 ring-yellow-200 dark:ring-yellow-800';
+        case 'green': return 'bg-green-50 dark:bg-green-900/20 ring-2 ring-green-200 dark:ring-green-800';
+        case 'red': return 'bg-red-50 dark:bg-red-900/20 ring-2 ring-red-200 dark:ring-red-800';
+        default: return '';
+      }
+    }
+    return '';
+  };
+  
+  return (
+    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+      <div className="flex items-center mb-4">
+        <div className={`w-3 h-3 bg-${color}-500 rounded-full mr-2`}></div>
+        <h2 className="text-lg font-semibold dark:text-white">{title}</h2>
+        <span className={`ml-auto bg-${color}-500 text-white text-xs px-2 py-1 rounded-full`}>
+          {count}
+        </span>
+      </div>
+      
+      <div 
+        ref={setNodeRef}
+        className={`space-y-3 min-h-[100px] rounded-md transition-colors duration-200 p-2 ${getBackgroundColor()}`}
+      >
+        {deals.length === 0 ? (
+          <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400">
+            No {title.toLowerCase()} deals
+          </div>
+        ) : (
+          deals.map((deal) => (
+            <DraggableDeal 
+              key={deal.id} 
+              deal={deal}
+              onMove={onMove}
+              onDelete={onDelete}
+              formatCurrency={formatCurrency}
+              formatDate={formatDate}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Draggable Deal Component
+import { useDraggable } from '@dnd-kit/core';
+
+function DraggableDeal({
+  deal,
+  onMove,
+  onDelete,
+  formatCurrency,
+  formatDate,
+}: {
+  deal: DealType;
+  onMove: (id: string, newStatus: 'OPEN' | 'PENDING' | 'WON' | 'LOST') => void;
+  onDelete: (id: string) => void;
+  formatCurrency: (value: number) => string;
+  formatDate: (date: any) => string;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: deal.id || '',
+  });
+  
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    opacity: isDragging ? 0.5 : 1,
+  } : undefined;
+  
+  return (
+    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+      <DealCard
+        deal={deal}
+        onMove={onMove}
+        onDelete={onDelete}
+        formatCurrency={formatCurrency}
+        formatDate={formatDate}
+      />
+    </div>
+  );
+}
+
+// Deal Card Component
 function DealCard({
   deal,
   onMove,
@@ -454,13 +617,23 @@ function DealCard({
   const customerDisplay = deal.customerName || `Customer ${customerId.substring(0, Math.min(5, customerId.length))}...`;
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-      <div className="flex justify-between items-start">
-        <h3 className="font-medium">{deal.title}</h3>
-        <div className="relative">
+    <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-600 relative group">
+      {/* Subtle indicator that the card is draggable */}
+      <div className="absolute top-2 left-2 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+        </svg>
+      </div>
+      
+      <div className="flex justify-between items-start ml-5">
+        <h3 className="font-medium dark:text-white">{deal.title}</h3>
+        <div className="relative z-10"> {/* Higher z-index to ensure dropdown works properly */}
           <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="text-gray-500 hover:text-gray-700"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent drag event when clicking dropdown
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -472,58 +645,63 @@ function DealCard({
             </svg>
           </button>
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700">
               <div className="py-1">
                 {deal.status !== 'OPEN' && (
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent drag
                       onMove(id, 'OPEN');
                       setIsDropdownOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Move to Open
                   </button>
                 )}
                 {deal.status !== 'PENDING' && (
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent drag
                       onMove(id, 'PENDING');
                       setIsDropdownOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Move to Pending
                   </button>
                 )}
                 {deal.status !== 'WON' && (
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent drag
                       onMove(id, 'WON');
                       setIsDropdownOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Move to Won
                   </button>
                 )}
                 {deal.status !== 'LOST' && (
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent drag
                       onMove(id, 'LOST');
                       setIsDropdownOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Move to Lost
                   </button>
                 )}
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent drag
                     onDelete(id);
                     setIsDropdownOpen(false);
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Delete
                 </button>
@@ -532,9 +710,9 @@ function DealCard({
           )}
         </div>
       </div>
-      <p className="text-sm text-gray-600 mt-1">{customerDisplay}</p>
-      <p className="text-lg font-semibold mt-2">{formatCurrency(deal.value)}</p>
-      <div className="flex items-center mt-2 text-xs text-gray-500">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{customerDisplay}</p>
+      <p className="text-lg font-semibold mt-2 dark:text-white">{formatCurrency(deal.value)}</p>
+      <div className="flex items-center mt-2 text-xs text-gray-500 dark:text-gray-400">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-4 w-4 mr-1"
