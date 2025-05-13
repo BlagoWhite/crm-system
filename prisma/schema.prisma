@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customers     Customer[]
+  deals         Deal[]
+  tasks         Task[]
+  notes         Note[]
+}
+
+model Customer {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  status        CustomerStatus @default(LEAD)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  deals         Deal[]
+  tasks         Task[]
+  notes         Note[]
+  contacts      Contact[]
+}
+
+model Deal {
+  id            String    @id @default(uuid())
+  title         String
+  value         Float
+  status        DealStatus @default(OPEN)
+  closingDate   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customerId    String
+  customer      Customer  @relation(fields: [customerId], references: [id])
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  tasks         Task[]
+  notes         Note[]
+}
+
+model Task {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  dueDate       DateTime?
+  completed     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  dealId        String?
+  deal          Deal?     @relation(fields: [dealId], references: [id])
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Note {
+  id            String    @id @default(uuid())
+  content       String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  dealId        String?
+  deal          Deal?     @relation(fields: [dealId], references: [id])
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+}
+
+model Contact {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  jobTitle      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  customerId    String
+  customer      Customer  @relation(fields: [customerId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum CustomerStatus {
+  LEAD
+  PROSPECT
+  ACTIVE
+  INACTIVE
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+  PENDING
+}
